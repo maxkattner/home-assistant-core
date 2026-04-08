@@ -354,7 +354,14 @@ class AppleTvMediaPlayer(
             media_type == MediaType.MUSIC or await is_streamable(media_id)
         ):
             _LOGGER.debug("Streaming %s via RAOP", media_id)
-            await self.atv.stream.stream_file(media_id)
+            try:
+                await self.atv.stream.stream_file(media_id)
+            except exceptions.InvalidStateError as ex:
+                _LOGGER.warning(
+                    "Unable to stream to %s, device is already streaming: %s",
+                    self.name,
+                    ex,
+                )
         elif self._is_feature_available(FeatureName.PlayUrl):
             _LOGGER.debug("Playing %s via AirPlay", media_id)
             await self.atv.stream.play_url(media_id)
